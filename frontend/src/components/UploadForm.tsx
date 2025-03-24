@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { uploadToIPFS } from "@/lib/ipfs";
 import { Upload, File, Loader } from "lucide-react";
+import { toast } from "react-hot-toast";
+
 
 export default function UploadForm() {
   const [file, setFile] = useState<File | null>(null);
@@ -14,18 +16,24 @@ export default function UploadForm() {
   };
 
   const handleUpload = async () => {
-    if (!file) return alert("Select a file first!");
+    if (!file) return toast.error("Please select a file first!");
     setUploading(true);
 
-    const ipfsHash = await uploadToIPFS(file);
-    if (ipfsHash) {
-      setCid(ipfsHash);
-      alert(`File uploaded! IPFS CID: ${ipfsHash}`);
-    } else {
-      alert("Upload failed. Try again.");
+    const uploadToast = toast.loading("Uploading file...");
+    try {
+      const ipfsHash = await uploadToIPFS(file);
+      if (ipfsHash) {
+        setCid(ipfsHash);
+        toast.success("File uploaded successfully!");
+      } else {
+        toast.error("Upload failed. Please try again.");
+      }
+    } catch (error) {
+      toast.error("Something went wrong.");
+    } finally {
+      toast.dismiss(uploadToast);
+      setUploading(false);
     }
-
-    setUploading(false);
   };
 
   return (
