@@ -10,18 +10,19 @@ export default function UploadForm() {
 
   const handleUpload = async () => {
     if (!file) return alert("Select a file first!");
-
-   
-
     alert(`File uploaded: ${file.name}`);
   };
 
   return (
-    <div className="p-4 border rounded bg-white">
-      <input type="file" onChange={handleFileChange} className="mb-2" />
+    <div className="max-w-md mx-auto bg-gray-900 p-6 rounded-lg shadow-lg">
+      <input
+        type="file"
+        onChange={handleFileChange}
+        className="block w-full text-sm text-gray-300 bg-gray-800 border border-gray-700 rounded-lg cursor-pointer focus:outline-none"
+      />
       <button
         onClick={handleUpload}
-        className="px-4 py-2 bg-blue-600 text-white rounded"
+        className="mt-4 w-full px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-md transition"
       >
         Upload
       </button>
