@@ -29,7 +29,7 @@ export default function UploadForm() {
 
   return (
     <div className="max-w-md mx-auto bg-gray-900 p-6 rounded-lg shadow-lg">
-      <input type="file" onChange={handleFileChange} className="block w-full text-sm text-gray-300 bg-gray-800 border border-gray-700 rounded-lg cursor-pointer focus:outline-none"
+      <input type="file" onChange={handleFileChange} className="block w-full text-md text-gray-300 bg-gray-800 border border-gray-700 rounded-sm cursor-pointer focus:outline-none"
  />
       <button
         onClick={handleUpload}
@@ -40,10 +40,19 @@ export default function UploadForm() {
         {uploading ? "Uploading..." : "Upload"}
       </button>
       {cid && (
-        <p className="mt-2 text-sm">
-          File CID: <a href={`https://gateway.pinata.cloud/ipfs/${cid}`} target="_blank" className="text-blue-500">{cid}</a>
-        </p>
-      )}
+  <p className="flex items-center justify-between mt-6 text-sm">
+    File CID: {" "}
+    <a
+      href={`https://gateway.pinata.cloud/ipfs/${cid}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-blue-500 inline-block max-w-[84%] truncate"
+    >
+      {cid}
+    </a>
+  </p>
+)}
+
     </div>
   );
 }
