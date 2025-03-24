@@ -1,22 +1,8 @@
 "use client";
-import { useState } from "react";
-import { ethers } from "ethers";
-
-declare global {
-  interface Window {
-    ethereum?: any;
-  }
-}
+import { useWallet } from "@/context/WalletProvider";
 
 export default function ConnectWallet() {
-  const [account, setAccount] = useState<string | null>(null);
-
-  const connectWallet = async () => {
-    if (!window.ethereum) return alert("Install MetaMask!");
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const signer = await provider.getSigner();
-    setAccount(await signer.getAddress());
-  };
+  const { account, connectWallet } = useWallet();
 
   return (
     <button
