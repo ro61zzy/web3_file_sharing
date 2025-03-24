@@ -1,7 +1,11 @@
 import axios from "axios";
 
-const PINATA_API_KEY = process.env.PINATA_API_KEY;
-const PINATA_SECRET_KEY = process.env.PINATA_SECRET_KEY;
+const PINATA_API_KEY = process.env.NEXT_PUBLIC_PINATA_API_KEY;
+const PINATA_SECRET_KEY = process.env.NEXT_PUBLIC_PINATA_SECRET_KEY;
+
+console.log("PINATA_API_KEY:", PINATA_API_KEY);
+console.log("PINATA_SECRET_KEY:", PINATA_SECRET_KEY);
+
 
 export async function uploadToIPFS(file: File) {
   const formData = new FormData();
