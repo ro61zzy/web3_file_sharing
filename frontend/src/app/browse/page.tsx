@@ -84,10 +84,10 @@ export default function BrowsePage() {
       ) : files.length === 0 ? (
         <p className="text-center text-gray-400 p-6">No files uploaded yet.</p>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
         {files.map((file) => {
           const fileUrl = `https://gateway.pinata.cloud/ipfs/${file.ipfs_pin_hash}`;
-
+      
           return (
             <div key={file.id} className="bg-gray-800 p-4 rounded-lg">
               <p className="text-lg font-semibold">{file.metadata.name}</p>
@@ -103,7 +103,7 @@ export default function BrowsePage() {
                 >
                   View on IPFS
                 </a>
-
+      
                 <button onClick={() => copyToClipboard(fileUrl)} className="text-gray-400 hover:text-white">
                   <Copy size={20} />
                 </button>
@@ -118,6 +118,7 @@ export default function BrowsePage() {
           );
         })}
       </div>
+      
       )}
     </main>
   );
