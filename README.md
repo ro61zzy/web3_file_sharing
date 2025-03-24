@@ -5,8 +5,8 @@ Users can **upload files**, store metadata on-chain, and access their uploads se
 
 ## 🛠 Tech Stack
 - **Frontend:** Next.js, TypeScript, ethers.js
-- **Storage:** IPFS via Web3.Storage (or Pinata)
-- **Blockchain:** Solidity smart contract deployed on Ethereum Testnet
+- **Storage:** IPFS via Pinata
+- **Blockchain:** Solidity smart contract deployed on Ethereum Testnet - Sepolia
 
 ## 📂 Project Structure
 - `frontend/` → Next.js app for UI & wallet interactions
