@@ -83,39 +83,39 @@ export default function BrowsePage() {
         <p className="text-center text-gray-400">No files uploaded yet.</p>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {files.map((file) => {
-            const fileUrl = `https://gateway.pinata.cloud/ipfs/${file.ipfs_pin_hash}`;
+        {files.map((file) => {
+          const fileUrl = `https://gateway.pinata.cloud/ipfs/${file.ipfs_pin_hash}`;
 
-            return (
-              <div key={file.id} className="bg-gray-800 p-4 rounded-lg">
-                <p className="text-lg font-semibold">{file.metadata.name}</p>
-                <p className="text-sm text-gray-400 truncate">
-                  {file.ipfs_pin_hash}
-                </p>
-                <div className="flex items-center gap-3 mt-3">
-                  <a
-                    href={fileUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-400 hover:underline"
-                  >
-                    View on IPFS
-                  </a>
+          return (
+            <div key={file.id} className="bg-gray-800 p-4 rounded-lg">
+              <p className="text-lg font-semibold">{file.metadata.name}</p>
+              <p className="text-sm text-gray-400 truncate">
+                {file.ipfs_pin_hash}
+              </p>
+              <div className="flex items-center gap-3 mt-3">
+                <a
+                  href={fileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-400 text-sm hover:underline"
+                >
+                  View on IPFS
+                </a>
 
-                  {/* Copy Link */}
-                  <button onClick={() => copyToClipboard(fileUrl)} className="text-gray-400 hover:text-white">
-                    <Copy size={20} />
-                  </button>
-
-                  {/* Share Link */}
-                  <button onClick={() => shareFile(fileUrl)} className="text-gray-400 hover:text-white">
-                    <Share2 size={20} />
-                  </button>
-                </div>
+                <button onClick={() => copyToClipboard(fileUrl)} className="text-gray-400 hover:text-white">
+                  <Copy size={20} />
+                </button>
+                <button onClick={() => shareFile(fileUrl)} className="text-gray-400 hover:text-white">
+                  <Share2 size={20} />
+                </button>
+                <button onClick={() => deleteFile(file.ipfs_pin_hash)} className="text-red-500 hover:text-red-700">
+                  <Trash2 size={20} />
+                </button>
               </div>
-            );
-          })}
-        </div>
+            </div>
+          );
+        })}
+      </div>
       )}
     </main>
   );
