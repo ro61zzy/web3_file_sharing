@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Navbar from "@/components/Navbar";
 import { Copy, Share2, Trash2 } from "lucide-react"; // Icons for copy & share
 
 const PINATA_API_KEY = process.env.NEXT_PUBLIC_PINATA_API_KEY;
@@ -72,17 +73,18 @@ export default function BrowsePage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-950 text-white p-6">
-      <h1 className="text-3xl font-bold text-blue-400 text-center mb-6">
+    <main className="min-h-screen bg-gray-950 text-white">
+         <Navbar />
+      <h1 className="text-3xl font-bold text-blue-400 text-center mb-6 mt-6">
         Your Uploaded Files
       </h1>
 
       {loading ? (
-        <p className="text-center text-gray-400">Loading files...</p>
+        <p className="text-center text-gray-400 p-6">Loading files...</p>
       ) : files.length === 0 ? (
-        <p className="text-center text-gray-400">No files uploaded yet.</p>
+        <p className="text-center text-gray-400 p-6">No files uploaded yet.</p>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
         {files.map((file) => {
           const fileUrl = `https://gateway.pinata.cloud/ipfs/${file.ipfs_pin_hash}`;
 
