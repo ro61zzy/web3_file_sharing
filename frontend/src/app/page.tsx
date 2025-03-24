@@ -24,7 +24,9 @@ export default function Home() {
           transition={{ duration: 0.8, delay: 0.2 }}
         >
           Secure & decentralized file storage using{" "}
-          <span className="text-blue-400 font-semibold">IPFS</span>. Say goodbye
+          <span className="text-blue-400 font-semibold">IPFS</span>. 
+          <br />
+          Say goodbye
           to centralized servers and take full control of your data.
         </motion.p>
         <motion.div
