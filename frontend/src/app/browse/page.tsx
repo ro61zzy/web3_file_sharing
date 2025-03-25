@@ -1,42 +1,69 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { ethers } from "ethers";
+import { useWallet } from "@/context/WalletProvider";
 import Navbar from "@/components/Navbar";
 import { Copy, Share2, Trash2 } from "lucide-react";
-import { toast } from "react-hot-toast"; // ✅ Import toast
+import { toast } from "react-hot-toast";
+import contractData from "@/contracts/FileStorage.json";
 
-const PINATA_API_KEY = process.env.NEXT_PUBLIC_PINATA_API_KEY;
-const PINATA_SECRET_KEY = process.env.NEXT_PUBLIC_PINATA_SECRET_KEY;
+const CONTRACT_ADDRESS = "0xAe14879343C5C1F239959503Fc6eA17245842499";
 
 interface FileData {
-  id: string;
-  ipfs_pin_hash: string;
-  metadata: { name: string };
+  ipfsHash: string;
+  filename: string;
+  timestamp: number;
 }
 
 export default function BrowsePage() {
+  const abi = contractData.abi;
+  const { account, provider } = useWallet(); 
   const [files, setFiles] = useState<FileData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchFiles() {
-      try {
-        const res = await axios.get("https://api.pinata.cloud/data/pinList", {
-          headers: {
-            pinata_api_key: String(PINATA_API_KEY),
-            pinata_secret_api_key: String(PINATA_SECRET_KEY),
-          },
-        });
-        setFiles(res.data.rows);
-      } catch (error) {
-        toast.error("Error fetching files");
-      } finally {
-        setLoading(false);
+    if (!account || !provider) return;
+    
+    const code = provider.getCode(CONTRACT_ADDRESS);
+      console.log("Contract Code:", code);
+
+
+
+    fetchUserFiles();
+  }, [account, provider]);
+
+  async function fetchUserFiles() {
+    try {
+      setLoading(true);
+
+  
+      if (!provider) {
+        toast.error("No provider found. Please connect your wallet.");
+        return;
       }
+
+  
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, await signer);
+      const userFiles = await contract.getFilesByOwner(account);
+
+
+     
+      const formattedFiles = userFiles.map((file: any) => ({
+        ipfsHash: file.ipfsHash,
+        filename: file.filename,
+        timestamp: Number(file.timestamp) * 1000,
+      }));
+
+      setFiles(formattedFiles);
+    } catch (error) {
+      toast.error("Error fetching files from blockchain");
+    } finally {
+      setLoading(false);
     }
-    fetchFiles();
-  }, []);
+  }
+
 
   const copyToClipboard = (url: string) => {
     navigator.clipboard.writeText(url);
@@ -46,63 +73,48 @@ export default function BrowsePage() {
   const shareFile = (url: string) => {
     if (navigator.share) {
       navigator
-        .share({
-          title: "Check out this file on IPFS",
-          url,
-        })
+        .share({ title: "Check out this file on IPFS", url })
         .catch(() => toast.error("Failed to share file"));
     } else {
       toast.error("Sharing not supported on this browser.");
     }
   };
 
-  const deleteFile = async (ipfsHash: string) => {
-    const confirmDelete = confirm("Are you sure you want to delete this file?");
-    if (!confirmDelete) return;
+  
 
-    const deleteToast = toast.loading("Deleting file...");
-
-    try {
-      await axios.delete(`https://api.pinata.cloud/pinning/unpin/${ipfsHash}`, {
-        headers: {
-          pinata_api_key: String(PINATA_API_KEY),
-          pinata_secret_api_key: String(PINATA_SECRET_KEY),
-        },
-      });
-
-      setFiles((prevFiles) =>
-        prevFiles.filter((file) => file.ipfs_pin_hash !== ipfsHash)
-      );
-      toast.success("File deleted successfully!");
-    } catch (error) {
-      toast.error("Failed to delete file.");
-    } finally {
-      toast.dismiss(deleteToast);
-    }
-  };
+  if (!account) {
+    return (
+      <main className="min-h-screen bg-gray-950 text-white">
+        <Navbar />
+        <div className="flex flex-col items-center justify-center h-screen">
+          <p className="text-gray-400">Please connect your wallet</p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-gray-950 text-white">
       <Navbar />
-      <h1 className="text-3xl font-bold text-blue-400 text-center mb-6 mt-6">
+      <h1 className="text-3xl font-bold text-blue-400 text-center mt-6">
         Your Uploaded Files
       </h1>
 
       {loading ? (
-        <p className="text-center text-gray-400 p-6">Loading files...</p>
+        <div className="flex justify-center items-center min-h-[40vh]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-500"></div>
+        </div>
       ) : files.length === 0 ? (
         <p className="text-center text-gray-400 p-6">No files uploaded yet.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
           {files.map((file) => {
-            const fileUrl = `https://gateway.pinata.cloud/ipfs/${file.ipfs_pin_hash}`;
+            const fileUrl = `https://gateway.pinata.cloud/ipfs/${file.ipfsHash}`;
 
             return (
-              <div key={file.id} className="bg-gray-800 p-4 rounded-lg">
-                <p className="text-lg font-semibold">{file.metadata.name}</p>
-                <p className="text-sm text-gray-400 truncate">
-                  {file.ipfs_pin_hash}
-                </p>
+              <div key={file.ipfsHash} className="bg-gray-800 p-4 rounded-lg">
+                <p className="text-lg font-semibold">{file.filename}</p>
+                <p className="text-sm text-gray-400 truncate">{file.ipfsHash}</p>
                 <div className="flex items-center gap-3 mt-3">
                   <a
                     href={fileUrl}
@@ -112,7 +124,6 @@ export default function BrowsePage() {
                   >
                     View on IPFS
                   </a>
-
                   <button
                     onClick={() => copyToClipboard(fileUrl)}
                     className="text-gray-400 hover:text-white"
@@ -126,7 +137,7 @@ export default function BrowsePage() {
                     <Share2 size={20} />
                   </button>
                   <button
-                    onClick={() => deleteFile(file.ipfs_pin_hash)}
+                    // onClick={() => ())}
                     className="text-red-500 hover:text-red-700"
                   >
                     <Trash2 size={20} />

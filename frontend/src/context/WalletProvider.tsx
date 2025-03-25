@@ -5,6 +5,7 @@ import { ethers } from "ethers";
 
 interface WalletContextType {
   account: string | null;
+  provider: ethers.BrowserProvider | null;
   connectWallet: () => Promise<void>;
 }
 
@@ -18,11 +19,13 @@ const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
 export function WalletProvider({ children }: { children: React.ReactNode }) {
   const [account, setAccount] = useState<string | null>(null);
+  const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
 
   useEffect(() => {
     const checkWalletConnection = async () => {
       if (window.ethereum) {
         const provider = new ethers.BrowserProvider(window.ethereum);
+        setProvider(provider);
         const accounts = await provider.listAccounts();
         if (accounts.length > 0) {
           setAccount(accounts[0].address);
@@ -35,12 +38,13 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   const connectWallet = async () => {
     if (!window.ethereum) return alert("Install MetaMask!");
     const provider = new ethers.BrowserProvider(window.ethereum);
+    setProvider(provider);
     const signer = await provider.getSigner();
     setAccount(await signer.getAddress());
   };
 
   return (
-    <WalletContext.Provider value={{ account, connectWallet }}>
+    <WalletContext.Provider value={{ account, provider, connectWallet }}>
       {children}
     </WalletContext.Provider>
   );

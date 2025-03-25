@@ -2,12 +2,17 @@
 
 import { useState } from "react";
 import { useWallet } from "@/context/WalletProvider";
+import { ethers } from "ethers";
 import { uploadToIPFS } from "@/lib/ipfs";
 import { Upload, File, Loader } from "lucide-react";
 import { toast } from "react-hot-toast";
+import contractData from "@/contracts/FileStorage.json";
+
+const CONTRACT_ADDRESS = "0xAe14879343C5C1F239959503Fc6eA17245842499";
 
 export default function UploadForm() {
-  const { account } = useWallet();
+  const { account, provider } = useWallet();
+  const abi = contractData.abi;
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [cid, setCid] = useState<string | null>(null);
@@ -19,20 +24,40 @@ export default function UploadForm() {
   const handleUpload = async () => {
     if (!account) return toast.error("Please connect your wallet first!");
     if (!file) return toast.error("Please select a file first!");
-    
+
     setUploading(true);
     const uploadToast = toast.loading("Uploading file...");
 
     try {
       const ipfsHash = await uploadToIPFS(file);
-      if (ipfsHash) {
-        setCid(ipfsHash);
-        toast.success("File uploaded successfully!");
-      } else {
-        toast.error("Upload failed. Please try again.");
-      }
+      if (!ipfsHash) throw new Error("IPFS upload failed.");
+
+      if (!provider)
+        throw new Error("No provider found. Please connect your wallet.");
+
+      setCid(ipfsHash);
+
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, await signer);
+
+      const sanitizedHash = ipfsHash.trim();
+      const shortFileName = file.name.slice(0, 30);
+
+      console.log("Uploading file with:", { sanitizedHash, shortFileName });
+
+      toast.dismiss(uploadToast);
+      const blockchainToast = toast.loading("Saving file to blockchain...");
+
+      const tx = await contract.uploadFile(sanitizedHash, shortFileName, {
+        gasLimit: 300000,
+      });
+      await tx.wait();
+
+      toast.dismiss(blockchainToast);
+      toast.success("File uploaded and stored on blockchain!");
     } catch (error) {
-      toast.error("Something went wrong.");
+      console.error("Error uploading file:", error);
+      toast.error("Upload failed. Check console for details.");
     } finally {
       toast.dismiss(uploadToast);
       setUploading(false);
@@ -64,7 +89,7 @@ export default function UploadForm() {
         {uploading ? <Loader size={20} className="animate-spin" /> : "Upload"}
       </button>
 
-      {cid && (
+      {/* {cid && (
         <p className="flex items-center justify-between mt-6 text-sm">
           File CID:{" "}
           <a
@@ -76,7 +101,7 @@ export default function UploadForm() {
             {cid}
           </a>
         </p>
-      )}
+      )} */}
     </div>
   );
 }
