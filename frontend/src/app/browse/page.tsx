@@ -39,7 +39,7 @@ export default function BrowsePage() {
 
   
       if (!provider) {
-        toast.error("No provider found. Please connect your wallet.");
+        toast.error("Please connect your wallet.");
         return;
       }
 
@@ -58,7 +58,7 @@ export default function BrowsePage() {
 
       setFiles(formattedFiles);
     } catch (error) {
-      toast.error("Error fetching files from blockchain");
+      toast.error("No files found, upload first");
     } finally {
       setLoading(false);
     }
@@ -82,7 +82,7 @@ export default function BrowsePage() {
 
   const deleteFile = async (ipfsHash: string) => {
     if (!provider) {
-      toast.error("No provider found. Please connect your wallet.");
+      toast.error("Please connect your wallet.");
       return;
     }
   

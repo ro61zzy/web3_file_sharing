@@ -33,7 +33,7 @@ export default function UploadForm() {
       if (!ipfsHash) throw new Error("IPFS upload failed.");
 
       if (!provider)
-        throw new Error("No provider found. Please connect your wallet.");
+        throw new Error("Please connect your wallet.");
 
       setCid(ipfsHash);
 
@@ -57,7 +57,7 @@ export default function UploadForm() {
       toast.success("File uploaded and stored on blockchain!");
     } catch (error) {
       console.error("Error uploading file:", error);
-      toast.error("Upload failed. Check console for details.");
+      toast.error("Upload failed. Contact Admin.");
     } finally {
       toast.dismiss(uploadToast);
       setUploading(false);
