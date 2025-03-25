@@ -80,6 +80,31 @@ export default function BrowsePage() {
     }
   };
 
+  const deleteFile = async (ipfsHash: string) => {
+    if (!provider) {
+      toast.error("No provider found. Please connect your wallet.");
+      return;
+    }
+  
+    try {
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, await signer);
+  
+      const tx = await contract.deleteFile(ipfsHash, { gasLimit: 300000 });
+      toast.loading("Deleting file from blockchain...");
+  
+      await tx.wait();
+      toast.success("File deleted successfully!");
+  
+      // Remove from UI
+      setFiles((prevFiles) => prevFiles.filter((file) => file.ipfsHash !== ipfsHash));
+    } catch (error) {
+      console.error("Error deleting file:", error);
+      toast.error("Failed to delete file.");
+    }
+  };
+  
+
   
 
   if (!account) {
@@ -136,12 +161,12 @@ export default function BrowsePage() {
                   >
                     <Share2 size={20} />
                   </button>
-                  <button
-                    // onClick={() => ())}
+                  {/* <button
+                   onClick={() => deleteFile(file.ipfsHash)}
                     className="text-red-500 hover:text-red-700"
                   >
                     <Trash2 size={20} />
-                  </button>
+                  </button> */}
                 </div>
               </div>
             );

@@ -14,6 +14,7 @@ contract FileStorage {
 
     // Event to notify when a file is uploaded
     event FileUploaded(address indexed owner, string ipfsHash, string filename, uint256 timestamp);
+    event FileDeleted(address indexed owner, string ipfsHash);
 
     // Function to upload a file
     function uploadFile(string memory _ipfsHash, string memory _filename) public {
@@ -32,6 +33,31 @@ contract FileStorage {
     function getFilesByOwner(address _owner) public view returns (File[] memory) {
         return userFiles[_owner];
     }
+
+    // Function to delete a file
+    function deleteFile(string memory _ipfsHash) public {
+        File[] storage files = userFiles[msg.sender];
+        bool found = false;
+
+        for (uint256 i = 0; i < files.length; i++) {
+            if (keccak256(bytes(files[i].ipfsHash)) == keccak256(bytes(_ipfsHash))) {
+                found = true;
+
+                // Shift elements to remove the deleted file
+                for (uint256 j = i; j < files.length - 1; j++) {
+                    files[j] = files[j + 1];
+                }
+                files.pop(); // Remove last element
+
+                emit FileDeleted(msg.sender, _ipfsHash);
+                break;
+            }
+        }
+
+        require(found, "File not found");
+    }
 }
 
-//contract address:  0xAe14879343C5C1F239959503Fc6eA17245842499
+
+//npx hardhat run ignition/modules/deploy.ts --network sepolia
+//npx hardhat verify --network sepolia ADD

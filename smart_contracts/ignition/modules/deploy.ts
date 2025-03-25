@@ -1,17 +1,22 @@
 import { ethers } from "hardhat";
 
 async function main() {
+  console.log("🚀 Starting deployment...");
+
   const FileStorage = await ethers.getContractFactory("FileStorage");
-  const fileStorage = await FileStorage.deploy();
+  console.log("✅ Contract Factory Loaded");
 
-  // ✅ Wait for the contract to be fully deployed
+  const fileStorage = await FileStorage.deploy({
+    gasLimit: 6000000,  // Increase if needed
+    gasPrice: ethers.parseUnits("15", "gwei"),  // Adjust gas price
+  });
+  
+  
   await fileStorage.waitForDeployment();
-
-  // ✅ Get the deployed contract address correctly in ethers v6
-  console.log("FileStorage deployed to:", await fileStorage.getAddress());
+  console.log("🎉 Contract Deployed at:", await fileStorage.getAddress());
 }
 
 main().catch((error) => {
-  console.error(error);
+  console.error("❌ Deployment Failed:", error);
   process.exitCode = 1;
 });
