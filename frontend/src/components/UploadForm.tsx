@@ -48,10 +48,15 @@ export default function UploadForm() {
       toast.dismiss(uploadToast);
       const blockchainToast = toast.loading("Saving file to blockchain...");
 
+      console.log("Contract Call Params:", { sanitizedHash, shortFileName });
+
+
       const tx = await contract.uploadFile(sanitizedHash, shortFileName, {
-        gasLimit: 300000,
+        gasLimit: 500000,
       });
       await tx.wait();
+
+  
 
       toast.dismiss(blockchainToast);
       toast.success("File uploaded and stored on blockchain!");
