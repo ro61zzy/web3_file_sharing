@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useWallet } from "@/context/WalletProvider";
 import { uploadToIPFS } from "@/lib/ipfs";
 import { Upload, File, Loader } from "lucide-react";
 import { toast } from "react-hot-toast";
 
-
 export default function UploadForm() {
+  const { account } = useWallet();
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [cid, setCid] = useState<string | null>(null);
@@ -16,10 +17,12 @@ export default function UploadForm() {
   };
 
   const handleUpload = async () => {
+    if (!account) return toast.error("Please connect your wallet first!");
     if (!file) return toast.error("Please select a file first!");
+    
     setUploading(true);
-
     const uploadToast = toast.loading("Uploading file...");
+
     try {
       const ipfsHash = await uploadToIPFS(file);
       if (ipfsHash) {
@@ -38,7 +41,6 @@ export default function UploadForm() {
 
   return (
     <div className="max-w-md mx-auto bg-gray-900 p-6 rounded-lg shadow-lg">
-      {/* Drag and Drop File Upload */}
       <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-gray-600 rounded-lg cursor-pointer hover:border-blue-500 transition p-4">
         <input type="file" onChange={handleFileChange} className="hidden" />
         <Upload size={32} className="text-gray-400" />
@@ -47,7 +49,6 @@ export default function UploadForm() {
         </p>
       </label>
 
-      {/* Selected File Preview */}
       {file && (
         <div className="mt-3 flex items-center gap-2 text-gray-300">
           <File size={20} />
@@ -55,7 +56,6 @@ export default function UploadForm() {
         </div>
       )}
 
-      {/* Upload Button */}
       <button
         onClick={handleUpload}
         className="mt-4 w-full px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-md transition flex items-center justify-center gap-2"
@@ -64,7 +64,6 @@ export default function UploadForm() {
         {uploading ? <Loader size={20} className="animate-spin" /> : "Upload"}
       </button>
 
-      {/* Display CID Link */}
       {cid && (
         <p className="flex items-center justify-between mt-6 text-sm">
           File CID:{" "}
